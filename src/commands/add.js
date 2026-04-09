@@ -1,8 +1,8 @@
 const { readTasks, writeTasks } = require("../storage/fileStorage");
 const { findMaxId } = require("../utils/helpers");
 
-async function add(args) {
-	if (!args.join(" ")) {
+async function addFn(args) {
+	if (!args.join(" ").trim()) {
 		throw new Error("Description is empty");
 	}
 
@@ -44,4 +44,4 @@ async function add(args) {
 	}
 }
 
-module.exports = { add };
+module.exports = { addFn };

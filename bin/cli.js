@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-const { add } = require("../src/commands/add");
-const { list } = require("../src/commands/list");
+const { addFn } = require("../src/commands/add");
+const { listFn } = require("../src/commands/list");
+const { updateFn } = require("../src/commands/update");
 const command = process.argv[2];
 const args = process.argv.slice(3);
 
@@ -11,10 +12,11 @@ switch (command) {
 		break;
 	case "add":
 		// Command add
-		add(args);
+		addFn(args);
 		break;
 	case "update":
 		// Command update
+		updateFn(args);
 		break;
 	case "delete":
 		// Command delete
@@ -27,7 +29,7 @@ switch (command) {
 		break;
 	case "list":
 		// Command list
-		list(args);
+		listFn(args);
 		break;
 	default:
 		// Command unknown

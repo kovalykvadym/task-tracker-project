@@ -7,7 +7,7 @@ const correctArgs = {
 	done: "done",
 };
 
-async function list(args) {
+async function listFn(args) {
 	try {
 		if (!Object.hasOwn(correctArgs, args[0])) {
 			console.log("Unknown arguments");
@@ -34,4 +34,4 @@ async function list(args) {
 	}
 }
 
-module.exports = { list };
+module.exports = { listFn };

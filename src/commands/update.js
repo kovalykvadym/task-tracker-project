@@ -1,6 +1,6 @@
 const { readTasks, writeTasks } = require("../storage/fileStorage");
 
-async function update(args) {
+async function updateFn(args) {
 	const id = Number.parseInt(args[0], 10);
 	if (Number.isNaN(id)) {
 		throw new Error("ID is Not A Number");
@@ -19,7 +19,7 @@ async function update(args) {
 			return task.id === id;
 		});
 
-		if (taskId === undefined) {
+		if (taskId === -1) {
 			console.log("Task not found");
 			return;
 		}
@@ -35,4 +35,4 @@ async function update(args) {
 	}
 }
 
-module.exports = { update };
+module.exports = { updateFn };
