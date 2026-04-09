@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { add } = require("../src/commands/add");
+const { list } = require("../src/commands/list");
 const command = process.argv[2];
 const args = process.argv.slice(3);
 
@@ -26,6 +27,7 @@ switch (command) {
 		break;
 	case "list":
 		// Command list
+		list(args);
 		break;
 	default:
 		// Command unknown
