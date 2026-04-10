@@ -1,4 +1,5 @@
-const { readTasks, writeTasks } = require("../storage/fileStorage");
+const logger = require("../utils/logger");
+const { updateTask } = require("../services/taskService");
 
 async function updateFn(args) {
 	const id = Number.parseInt(args[0], 10);
@@ -7,32 +8,12 @@ async function updateFn(args) {
 	}
 
 	const description = args.slice(1).join(" ").trim();
-
 	if (!description) {
 		throw new Error("Description not specified");
 	}
 
-	try {
-		const tasks = await readTasks();
-
-		const taskId = tasks.findIndex((task) => {
-			return task.id === id;
-		});
-
-		if (taskId === -1) {
-			console.log("Task not found");
-			return;
-		}
-
-		tasks[taskId].description = description;
-		tasks[taskId].updatedAt = new Date().toISOString();
-
-		await writeTasks(tasks);
-
-		console.log("Task updated successfully");
-	} catch (err) {
-		throw new Error("The task could not be updated");
-	}
+	await updateTask(id, description);
+	logger.success(`Task ${id} updated successfully`);
 }
 
 module.exports = { updateFn };

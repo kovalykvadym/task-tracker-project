@@ -1,47 +1,14 @@
-const { readTasks, writeTasks } = require("../storage/fileStorage");
-const { findMaxId } = require("../utils/helpers");
+const logger = require("../utils/logger");
+const { addTask } = require("../services/taskService");
 
 async function addFn(args) {
-	if (!args.join(" ").trim()) {
-		throw new Error("Description is empty");
+	const description = args.join(" ").trim();
+	if (!description) {
+		throw new Error("Description is empty. Usage: task-cli add <description>");
 	}
 
-	try {
-		// 1. Read tasks
-
-		const tasksObj = await readTasks();
-
-		// 2. Create additional variables
-
-		const id = findMaxId(tasksObj) + 1;
-		const description = args.join(" ");
-		const timestamp = new Date().toISOString();
-
-		// 3. Create new task object
-
-		const newTask = {
-			id: id,
-			description: description,
-			status: "todo",
-			createdAt: timestamp,
-			updatedAt: timestamp,
-		};
-
-		// 4. Add new task object to all other tasks
-
-		tasksObj.push(newTask);
-
-		// 5. Write new task in tasks.json file
-
-		await writeTasks(tasksObj);
-
-		// 6. Return text about successfully add task
-
-		// Maybe change to return
-		console.log(`Task added successfully (ID: ${id})`);
-	} catch (err) {
-		throw new Error("Error add task");
-	}
+	const id = await addTask(description);
+	logger.success(`Task added successfully (ID: ${id})`);
 }
 
 module.exports = { addFn };

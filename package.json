@@ -1,10 +1,10 @@
 {
 	"name": "task-tracker-cli",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "",
 	"main": "index.js",
 	"bin": {
-		"task-tracker-cli": "./bin/cli.js"
+		"task-cli": "./bin/cli.js"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,8 @@
 	"type": "commonjs",
 	"devDependencies": {
 		"@biomejs/biome": "2.4.10"
+	},
+	"dependencies": {
+		"chalk": "^4.1.2"
 	}
 }
