@@ -1,0 +1,131 @@
+services:
+  # ============================================================================
+  # POSTGRESQL DATABASE SERVICE
+  # ============================================================================
+  postgres:
+    image: postgres:18.2
+    container_name: ${DB_NAME}_container
+    restart: unless-stopped
+    
+    # Load variables from the .env file
+    env_file:
+      - .env
+      
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # Moving PGDATA to a subfolder to avoid issues with mounted volumes
+      PGDATA: /var/lib/postgresql/data/pgdata
+      
+    ports:
+      - "${DB_PORT:-5432}:5432"
+      
+    volumes:
+      # Named volume for persistent data storage
+      - db_data:/var/lib/postgresql/data
+      # Mount local directory for initialization scripts
+      - ./db:/docker-entrypoint-initdb.d:ro
+      
+    networks:
+      - backend_network
+      
+    # Healthcheck ensures dependent services wait until DB is actually ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    # Resource constraints for production stability
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          memory: 512M
+
+# ============================================================================
+  # PGADMIN SERVICE (Database GUI)
+  # ============================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ${DB_NAME}_pgadmin
+    restart: unless-stopped
+    
+    # Do not start until PostgreSQL is fully initialized and healthy
+    depends_on:
+      postgres:
+        condition: service_healthy
+        
+    env_file:
+      - .env
+      
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+      
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      
+    networks:
+      - backend_network
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================================================
+  # POSTGRES EXPORTER SERVICE (Monitoring)
+  # ============================================================================
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: ${DB_NAME}_exporter
+    restart: unless-stopped
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+        
+    env_file:
+      - .env
+      
+    environment:
+      # Connecting via the internal Docker network using the service name 'postgres'
+      DATA_SOURCE_URI: "postgres:5432/${DB_NAME}?sslmode=disable"
+      DATA_SOURCE_USER: ${DB_USER}
+      DATA_SOURCE_PASS: ${DB_PASSWORD}
+      
+    ports:
+      - "${POSTGRES_EXPORTER_PORT:-9187}:9187"
+      
+    networks:
+      - backend_network
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+
+# ============================================================================
+# GLOBAL NETWORKS & VOLUMES DECLARATION
+# ============================================================================
+networks:
+  backend_network:
+    driver: bridge
+    name: ${DB_NAME}_network # Custom network name to avoid conflicts
+
+volumes:
+  db_data:
+    name: ${DB_NAME}_postgres_data
+  pgadmin_data:
+    name: ${DB_NAME}_pgadmin_data

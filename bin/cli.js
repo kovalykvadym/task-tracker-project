@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 const logger = require("../src/utils/logger");
 const { addFn } = require("../src/commands/add");
 const { listFn } = require("../src/commands/list");
