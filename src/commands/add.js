@@ -1,5 +1,5 @@
 const logger = require("../utils/logger");
-const { addTask } = require("../services/taskService");
+const service = require("../services/taskService");
 
 async function addFn(args) {
 	const description = args.join(" ").trim();
@@ -7,7 +7,7 @@ async function addFn(args) {
 		throw new Error("Description is empty. Usage: task-cli add <description>");
 	}
 
-	const id = await addTask(description);
+	const id = await service.addTask(description);
 	logger.success(`Task added successfully (ID: ${id})`);
 }
 

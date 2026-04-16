@@ -1,19 +1,46 @@
 # Task Tracker CLI 🚀
 
-A simple, fast, and colorful Command Line Interface (CLI) application to manage your tasks. Built entirely with Node.js,
-it uses a local JSON file to store your data, ensuring your tasks are always accessible and private.
+A simple, fast, and colorful Command Line Interface (CLI) application to manage your tasks.
+Built with Node.js and powered by a PostgreSQL database (Docker-based setup included).
+
+This project demonstrates clean backend architecture principles, including separation of concerns, layered design, and
+database integration.
+
+---
 
 ## ✨ Features
 
-- **Add, Update, and Delete** tasks easily from your terminal.
-- **Track Status:** Mark tasks as `todo`, `in-progress`, or `done`.
-- **Filter Tasks:** View all tasks or filter them by their current status.
-- **Colorful Output:** Beautiful terminal UI powered by `chalk`.
-- **Clean Architecture:** Built using the Separation of Concerns principle.
+- **Task Management:** Add, update, and delete tasks directly from your terminal
+- **Status Tracking:** Mark tasks as `todo`, `in-progress`, or `done`
+- **Filtering:** List all tasks or filter by status
+- **Colorful CLI Output:** Enhanced UX using `chalk`
+- **Persistent Storage:** PostgreSQL database with Docker support
+- **Clean Architecture:** Command → Service → Repository pattern
+
+---
+
+## 🧱 Architecture
+
+The project follows a layered architecture:
+
+```text
+CLI (commands)
+↓
+Service Layer (business logic)
+↓
+Repository Layer (data access)
+↓
+PostgreSQL (database)
+```
+
+---
 
 ## 🛠️ Prerequisites
 
-- [Node.js](https://nodejs.org/) (v14 or higher is recommended)
+- Node.js (v14 or higher recommended)
+- Docker & Docker Compose
+
+---
 
 ## 📦 Installation
 
@@ -28,41 +55,61 @@ it uses a local JSON file to store your data, ensuring your tasks are always acc
    npm install
    ```
 
-3. Make the CLI command globally available on your system:
+3. Create .env file
+   ```bash
+   cp .env.example .env
+   ```
+4. Start PostgreSQL with Docker:
+   ```bash
+   docker-compose up -d
+   ```
+5. Make the CLI command globally available on your system:
    ```bash
    npm link
    ```
+
+---
+
+## 🗄️ Database Setup
+
+- The database is automatically initialized via:
+   ```bash
+   db/01-create-table.sql
+   ```
+- Docker mounts this file and runs it on first startup
+
+---
 
 ## 🚀 Usage
 
 Once linked, you can use the `task-cli` command from anywhere in your terminal.
 
-**Add a new task:**
+**➕ Add a task**
 
 ```bash
 task-cli add "Buy groceries"
 ```
 
-**Update an existing task:**
+**✏️ Update a task**
 
 ```bash
 task-cli update 1 "Buy groceries and cook dinner"
 ```
 
-**Delete a task:**
+**❌ Delete a task**
 
 ```bash
 task-cli delete 1
 ```
 
-**Change task status:**
+**🔄 Change status**
 
 ```bash
 task-cli mark-in-progress 1
 task-cli mark-done 1
 ```
 
-**List tasks:**
+**📋 List tasks**
 
 ```bash
 task-cli list # Shows all tasks
@@ -70,21 +117,102 @@ task-cli list done # Shows only completed tasks
 task-cli list in-progress # Shows tasks currently in progress
 ```
 
+---
+
 ## 🧪 Testing
 
 This project uses **Jest** for unit testing the service layer. To run the tests:
 
-```bash
-npm run test
-```
+   ```bash
+   npm run test
+   ```
+
+---
 
 ## 📂 Project Structure
 
-- `bin/cli.js`: The entry point and command router.
-- `src/commands/`: Handlers for each specific CLI command.
-- `src/services/`: Core business logic (`taskService.js`).
-- `src/storage/`: File system interaction (`fileStorage.js`).
-- `tests/`: Jest unit tests.
+```text
+task-tracker-cli/
+│
+├── bin/
+│ └── cli.js # CLI entry point (command router)
+│
+├── db/
+│ └── 01-create-table.sql # Database schema initialization
+│
+├── src/
+│ ├── commands/ # CLI command handlers
+│ │ ├── add.js
+│ │ ├── delete.js
+│ │ ├── help.js
+│ │ ├── list.js
+│ │ ├── mark.js
+│ │ └── update.js
+│ │
+│ ├── database/ # Data access layer (PostgreSQL)
+│ │ ├── index.js # DB connection (pg Pool)
+│ │ └── tasks.repo.js # Repository (SQL queries)
+│ │
+│ ├── services/ # Business logic layer
+│ │ └── taskService.js
+│ │
+│ ├── utils/ # Helpers & utilities
+│ │ └── logger.js
+│ │
+│ └── constants.js # Shared constants (statuses, etc.)
+│
+├── .env.example # Environment variables template
+├── .gitignore
+├── biome.json # Linter / formatter config
+├── docker-compose.yml # PostgreSQL + services setup
+├── package.json # Project metadata & dependencies
+├── package-lock.json
+└── README.md # Project documentation
+```
 
 ---
-*Built to learn backend architecture and Node.js CLI development.*
+
+## ⚙️ Environment Variables
+
+Example .env:
+
+```text
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=task_tracker
+```
+
+---
+
+## 🚀 Future Improvements
+
+- Pagination (list --limit --offset)
+- Search (list --search)
+- REST API version (Express)
+- Migrations system
+- Authentication (for multi-user support)
+
+---
+
+## 📌 Notes
+
+- Uses parameterized queries to prevent SQL injection
+- Follows Separation of Concerns
+- Designed as a learning project for backend development
+
+---
+
+## 🧠 Author Goal
+
+This project was built to practice:
+
+- Node.js backend development
+- CLI application design
+- Database integration (PostgreSQL)
+- Clean architecture principles
+
+---
+
+Built as a stepping stone toward Junior / Intern Backend Developer role 💻

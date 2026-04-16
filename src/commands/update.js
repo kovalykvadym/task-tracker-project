@@ -1,5 +1,5 @@
 const logger = require("../utils/logger");
-const { updateTask } = require("../services/taskService");
+const service = require("../services/taskService");
 
 async function updateFn(args) {
 	const id = Number.parseInt(args[0], 10);
@@ -12,7 +12,7 @@ async function updateFn(args) {
 		throw new Error("Description not specified");
 	}
 
-	await updateTask(id, description);
+	await service.updateTask(id, description);
 	logger.success(`Task ${id} updated successfully`);
 }
 

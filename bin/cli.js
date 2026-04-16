@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
+const path = require("node:path");
 const dotenv = require("dotenv");
-dotenv.config();
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const logger = require("../src/utils/logger");
 const { addFn } = require("../src/commands/add");
-const { listFn } = require("../src/commands/list");
 const { updateFn } = require("../src/commands/update");
 const { deleteFn } = require("../src/commands/delete");
-const { markTask } = require("../src/commands/mark");
+const { markFn } = require("../src/commands/mark");
+const { listFn } = require("../src/commands/list");
 const { showHelp } = require("../src/commands/help");
 
 const command = process.argv[2];
@@ -27,10 +29,10 @@ async function bootstrap() {
 				await deleteFn(args);
 				break;
 			case "mark-in-progress":
-				await markTask(args, "in-progress");
+				await markFn(args, "in-progress");
 				break;
 			case "mark-done":
-				await markTask(args, "done");
+				await markFn(args, "done");
 				break;
 			case "list":
 				await listFn(args);
