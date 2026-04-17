@@ -10,7 +10,7 @@ async function addTask(description) {
 		timestamp,
 	);
 
-	return await id;
+	return id;
 }
 
 async function updateTask(id, description) {
@@ -43,17 +43,8 @@ async function changeTaskStatus(id, status) {
 	}
 }
 
-async function getTasks(filters) {
-	const { statusFilter, limitFilter, offsetFilter } = filters;
-
-	if (statusFilter) {
-		return await tasksRepo.getTasksByStatus(
-			statusFilter,
-			limitFilter,
-			offsetFilter,
-		);
-	}
-	return await tasksRepo.getTasks(limitFilter, offsetFilter);
+async function getTasks({ status, limit, offset, search }) {
+	return await tasksRepo.getTasks({ status, limit, offset, search });
 }
 
 module.exports = {

@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const logger = require("../src/utils/logger");
+const pool = require("../src/database/index");
+
 const { addFn } = require("../src/commands/add");
 const { updateFn } = require("../src/commands/update");
 const { deleteFn } = require("../src/commands/delete");
@@ -52,4 +54,4 @@ async function bootstrap() {
 	}
 }
 
-bootstrap();
+bootstrap().then(() => pool.end());

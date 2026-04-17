@@ -13,33 +13,40 @@ async function createTask(description, status, createdAt, updatedAt) {
 	return res.rows[0];
 }
 
-async function getTasks(limit, offset) {
-	const queryText = `
+async function getTasks({ status, limit, offset, search }) {
+	let queryText = `
 		SELECT *
 		FROM tasks
-		LIMIT $1
-		OFFSET $2
 	`;
-	const values = [limit, offset];
+
+	const values = [];
+	const conditions = [];
+
+	if (status !== undefined) {
+		values.push(status);
+		conditions.push(`status = $${values.length}`);
+	}
+
+	if (search !== undefined) {
+		values.push(`%${search}%`);
+		conditions.push(`LOWER(description) LIKE LOWER($${values.length})`);
+	}
+
+	if (conditions.length > 0) {
+		queryText += ` WHERE ${conditions.join(" AND ")}`;
+	}
+
+	if (limit !== undefined) {
+		values.push(limit);
+		queryText += ` LIMIT $${values.length}`;
+	}
+
+	if (offset !== undefined) {
+		values.push(offset);
+		queryText += ` OFFSET $${values.length}`;
+	}
 
 	const res = await pool.query(queryText, values);
-
-	return res.rows;
-}
-
-async function getTasksByStatus(status, limit, offset) {
-	const queryText = `
-		SELECT *
-		FROM tasks
-		WHERE status = $1
-		LIMIT $2
-		OFFSET $3
-	`;
-	const values = [status, limit, offset];
-
-	const res = await pool.query(queryText, values);
-	await pool.end();
-
 	return res.rows;
 }
 
@@ -87,7 +94,6 @@ async function deleteTask(id) {
 module.exports = {
 	createTask,
 	getTasks,
-	getTasksByStatus,
 	updateTask,
 	updateTaskStatus,
 	deleteTask,

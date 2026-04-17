@@ -3,13 +3,13 @@ const service = require("../services/taskService");
 const { VALID_STATUSES } = require("../constants");
 
 async function listFn(args) {
-	let statusFilter;
+	let status;
 
 	if (args.length !== 0) {
 		if (args[0].startsWith("--")) {
-			statusFilter = undefined;
+			status = undefined;
 		} else if (VALID_STATUSES.includes(args[0])) {
-			statusFilter = args[0];
+			status = args[0];
 			args = args.slice(1);
 		} else {
 			throw new Error(
@@ -19,48 +19,59 @@ async function listFn(args) {
 	}
 
 	const limitIndex = args.indexOf("--limit");
-	let limitFilter;
+	let limit;
 
 	if (limitIndex !== -1) {
-		limitFilter = parseInt(args[limitIndex + 1], 10);
+		limit = parseInt(args[limitIndex + 1], 10);
 
 		if (args[limitIndex + 1] === undefined) {
 			throw new Error("Missing value for --limit");
 		}
 
-		if (Number.isNaN(limitFilter)) {
+		if (Number.isNaN(limit)) {
 			throw new Error("The value of limit is not a number");
 		}
 
-		if (limitFilter < 0) {
+		if (limit < 0) {
 			throw new Error("The value of `limit` cannot be less than 0");
 		}
 	}
 
 	const offsetIndex = args.indexOf("--offset");
-
-	let offsetFilter = 0;
+	let offset = 0;
 
 	if (offsetIndex !== -1) {
-		offsetFilter = parseInt(args[offsetIndex + 1], 10);
+		offset = parseInt(args[offsetIndex + 1], 10);
 
 		if (args[offsetIndex + 1] === undefined) {
 			throw new Error("Missing value for --offset");
 		}
 
-		if (Number.isNaN(offsetFilter)) {
+		if (Number.isNaN(offset)) {
 			throw new Error("The value of offset is not a number");
 		}
 
-		if (offsetFilter < 0) {
+		if (offset < 0) {
 			throw new Error("The value of `offset` cannot be less than 0");
 		}
 	}
 
+	const searchIndex = args.indexOf("--search");
+	let search;
+
+	if (searchIndex !== -1) {
+		search = args[searchIndex + 1];
+
+		if (!search) {
+			throw new Error("The value of search is not specified");
+		}
+	}
+
 	const tasks = await service.getTasks({
-		statusFilter,
-		limitFilter,
-		offsetFilter,
+		status,
+		limit,
+		offset,
+		search,
 	});
 
 	if (tasks.length > 0) {
