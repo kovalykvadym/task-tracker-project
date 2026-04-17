@@ -1,4 +1,4 @@
-const pool = require("./index.js");
+const { pool } = require("./index.js");
 
 async function query(text, params) {
 	return pool.query(text, params);

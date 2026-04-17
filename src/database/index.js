@@ -21,8 +21,6 @@ async function initDb() {
 		const client = await pool.connect();
 		await client.query("SELECT 1");
 		client.release();
-
-		console.log("Database connected successfully");
 	} catch (err) {
 		console.error(`Database connection failed: ${err.message}`);
 		process.exit(1);
