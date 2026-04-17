@@ -5,8 +5,8 @@ const dotenv = require("dotenv");
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-const logger = require("../src/utils/logger");
-const pool = require("../src/database/index");
+const { warning, error } = require("../src/utils/logger");
+const { pool, initDb } = require("../src/database/index");
 
 const { addFn } = require("../src/commands/add");
 const { updateFn } = require("../src/commands/update");
@@ -19,6 +19,8 @@ const command = process.argv[2];
 const args = process.argv.slice(3);
 
 async function bootstrap() {
+	await initDb();
+
 	try {
 		switch (command) {
 			case "add":
@@ -44,12 +46,12 @@ async function bootstrap() {
 				showHelp();
 				break;
 			default:
-				logger.warning(
+				warning(
 					`Unknown command: "${command}". Type "task-cli help" for usage.`,
 				);
 		}
 	} catch (err) {
-		logger.error(err.message);
+		error(err.message);
 		process.exit(1);
 	}
 }

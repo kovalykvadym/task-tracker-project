@@ -1,15 +1,19 @@
 const pool = require("./index.js");
 
-async function createTask(description, status, createdAt, updatedAt) {
+async function query(text, params) {
+	return pool.query(text, params);
+}
+
+async function createTask({ description, status, createdAt, updatedAt }) {
 	const queryText = `
-		INSERT INTO tasks (description, status, created_at, updated_at) 
-		VALUES ($1, $2, $3, $4) 
+		INSERT INTO tasks (description, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4)
 		RETURNING *
 	`;
+
 	const values = [description, status, createdAt, updatedAt];
 
-	const res = await pool.query(queryText, values);
-
+	const res = await query(queryText, values);
 	return res.rows[0];
 }
 
@@ -22,72 +26,70 @@ async function getTasks({ status, limit, offset, search }) {
 	const values = [];
 	const conditions = [];
 
-	if (status !== undefined) {
+	if (status != null) {
 		values.push(status);
 		conditions.push(`status = $${values.length}`);
 	}
 
-	if (search !== undefined) {
+	if (search != null) {
 		values.push(`%${search}%`);
 		conditions.push(`LOWER(description) LIKE LOWER($${values.length})`);
 	}
 
-	if (conditions.length > 0) {
+	if (conditions.length) {
 		queryText += ` WHERE ${conditions.join(" AND ")}`;
 	}
 
-	if (limit !== undefined) {
+	if (limit != null) {
 		values.push(limit);
 		queryText += ` LIMIT $${values.length}`;
 	}
 
-	if (offset !== undefined) {
+	if (offset != null) {
 		values.push(offset);
 		queryText += ` OFFSET $${values.length}`;
 	}
 
-	const res = await pool.query(queryText, values);
+	const res = await query(queryText, values);
 	return res.rows;
 }
 
-async function updateTask(id, description, updatedAt) {
+async function updateTask({ id, description, updatedAt }) {
 	const queryText = `
 		UPDATE tasks
 		SET description = $2, updated_at = $3
 		WHERE id = $1
 		RETURNING *
 	`;
+
 	const values = [id, description, updatedAt];
 
-	const res = await pool.query(queryText, values);
-
+	const res = await query(queryText, values);
 	return res.rows[0];
 }
 
-async function updateTaskStatus(id, status, updatedAt) {
+async function updateTaskStatus({ id, status, updatedAt }) {
 	const queryText = `
 		UPDATE tasks
 		SET status = $2, updated_at = $3
 		WHERE id = $1
 		RETURNING *
 	`;
+
 	const values = [id, status, updatedAt];
 
-	const res = await pool.query(queryText, values);
-
+	const res = await query(queryText, values);
 	return res.rows[0];
 }
 
-async function deleteTask(id) {
+async function deleteTask({ id }) {
 	const queryText = `
 		DELETE FROM tasks
 		WHERE id = $1
 		RETURNING *
 	`;
-	const values = [id];
 
-	const res = await pool.query(queryText, values);
-
+	const res = await query(queryText, [id]);
 	return res.rows[0];
 }
 

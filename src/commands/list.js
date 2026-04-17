@@ -67,12 +67,7 @@ async function listFn(args) {
 		}
 	}
 
-	const tasks = await service.getTasks({
-		status,
-		limit,
-		offset,
-		search,
-	});
+	const tasks = await service.getTasks({ status, limit, offset, search });
 
 	if (tasks.length > 0) {
 		tasks.forEach((task) => {
